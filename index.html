@@ -902,27 +902,33 @@
             const { head, academic, director } = lesson.approvals;
             const role = currentUser ? currentUser.role : 'Teacher';
 
-            // ຂໍ້ 4: ເມື່ອ "ຜູ້ອຳນວຍການ" ອະນຸມັດແລ້ວ (ແລະ ຫົວໜ້າວິຊາ + ວິຊາການ ອະນຸມັດແລ້ວ): ສະແດງ "ອະນຸມັດທັງໝົດ" (Fully Approved)
+            // ຂໍ້ 4: ເມື່ອທຸກຝ່າຍ (ຫົວໜ້າວິຊາ + ວິຊາການ + ຜູ້ອຳນວຍການ) ອະນຸມັດຄົບ
             if (head && academic && director) {
                 return `<span class="px-2.5 py-1 bg-emerald-100 text-emerald-700 text-xs font-bold rounded-full">✅ ອະນຸມັດທັງໝົດ (Fully Approved)</span>`;
             }
 
-            // ຂໍ້ 5: ກໍລະນີທີ່ຜູ້ອຳນວຍການອະນຸມັດກ່ອນທີ່ຫົວໜ້າວິຊາ ແລະ ວິຊາການຈະຍັງບໍ່ທັນອະນຸມັດ
+            // ຂໍ້ 2: ກໍລະນີທີ່ຜູ້ອຳນວຍການອະນຸມັດກ່ອນ ທີ່ຫົວໜ້າວິຊາ ແລະ ວິຊາການ ຈະຍັງບໍ່ທັນອະນຸມັດ
             if (director && (!head || !academic)) {
-                if (role === 'Director') {
-                    return `<span class="px-2.5 py-1 bg-amber-100 text-amber-800 text-xs font-bold rounded-full">ຜູ້ອຳນວຍການອະນຸມັດແລ້ວ, ແຕ່ລໍຖ້າການອະນຸມັດຈາກ ຫົວໜ້າວິຊາ ແລະ ວິຊາການ</span>`;
-                }
-                if (role === 'Head') {
-                    return `<span class="px-2.5 py-1 bg-amber-100 text-amber-800 text-xs font-bold rounded-full">ຜູ້ອຳນວຍການອະນຸມັດແລ້ວ, ແຕ່ລໍຖ້າຫົວໜ້າວິຊາ ແລະ ວິຊາການ</span>`;
-                }
-                if (role === 'Academic') {
-                    return `<span class="px-2.5 py-1 bg-amber-100 text-amber-800 text-xs font-bold rounded-full">ຜູ້ອຳນວຍການອະນຸມັດແລ້ວ, ແຕ່ລໍຖ້າຫົວໜ້າວິຊາ ແລະ ວິຊາການ</span>`;
-                }
-                // ສຳລັບ ຄູສອນ (Teacher)
-                return `<span class="px-2.5 py-1 bg-amber-100 text-amber-800 text-xs font-bold rounded-full">ຜູ້ອຳນວຍການອະນຸມັດແລ້ວ, ແຕ່ລໍຖ້າຫົວໜ້າວິຊາ ແລະ ວິຊາການ</span>`;
+                return `<span class="px-2.5 py-1 bg-amber-100 text-amber-800 text-xs font-bold rounded-full">ຜູ້ອຳນວຍການອະນຸມັດແລ້ວ, ແຕ່ລໍຖ້າການອະນຸມັດຈາກ ຫົວໜ້າວິຊາ ແລະ ວິຊາການ</span>`;
             }
 
-            // ຂໍ້ 3: ຖ້າ "ຫົວໜ້າວິຊາ" ແລະ "ວິຊາການ" ອະນຸມັດແລ້ວ: ສະແດງສະຖານະໃນໜ້າຈໍຂອງຄູສອນວ່າ "ຫົວໜ້າວິຊາອະນຸມັດແລ້ວ, ວິຊາການອະນຸມັດແລ້ວ, ແຕ່ລໍຖ້າອະນຸມັດຈາກ ຜູ້ອຳນວຍການ"
+            // ຂໍ້ 3: ກໍລະນີ ຫົວໜ້າວິຊາ ອະນຸມັດກ່ອນ (ແຕ່ ວິຊາການ ແລະ ຜູ້ອຳນວຍການ ຍັງບໍ່ທັນອະນຸມັດ)
+            if (head && !academic && !director) {
+                if (role === 'Teacher') {
+                    return `<span class="px-2.5 py-1 bg-amber-100 text-amber-800 text-xs font-bold rounded-full">ຫົວໜ້າວິຊາອະນຸມັດແລ້ວ, ລໍຖ້າການອະນຸມັດຈາກ ວິຊາການ ແລະ ຜູ້ອຳນວຍການ</span>`;
+                }
+                if (role === 'Head') {
+                    return `<span class="px-2.5 py-1 bg-amber-100 text-amber-800 text-xs font-bold rounded-full">ອະນຸມັດແລ້ວ (ລໍຖ້າ ວິຊາການ ແລະ ຜູ້ອຳນວຍການ)</span>`;
+                }
+                if (role === 'Academic') {
+                    return `<span class="px-2.5 py-1 bg-amber-100 text-amber-800 text-xs font-bold rounded-full">ຫົວໜ້າວິຊາອະນຸມັດແລ້ວ, ລໍຖ້າ ທ່ານອະນຸມັດ ແລະ ຜູ້ອຳນວຍການ</span>`;
+                }
+                if (role === 'Director') {
+                    return `<span class="px-2.5 py-1 bg-amber-100 text-amber-800 text-xs font-bold rounded-full">ຫົວໜ້າວິຊາອະນຸມັດແລ້ວ, ລໍຖ້າ ວິຊາການ ແລະ ທ່ານອະນຸມັດ</span>`;
+                }
+            }
+
+            // ຖ້າ ຫົວໜ້າວິຊາ + ວິຊາການ ອະນຸມັດແລ້ວ (ລໍຖ້າ ຜູ້ອຳນວຍການ)
             if (head && academic && !director) {
                 if (role === 'Teacher') {
                     return `<span class="px-2.5 py-1 bg-amber-100 text-amber-800 text-xs font-bold rounded-full">ຫົວໜ້າວິຊາອະນຸມັດແລ້ວ, ວິຊາການອະນຸມັດແລ້ວ, ແຕ່ລໍຖ້າອະນຸມັດຈາກ ຜູ້ອຳນວຍການ</span>`;
@@ -930,15 +936,7 @@
                 return `<span class="px-2.5 py-1 bg-amber-100 text-amber-800 text-xs font-bold rounded-full">ຫົວໜ້າວິຊາ ແລະ ວິຊາການ ອະນຸມັດແລ້ວ (ລໍຖ້າຜູ້ອຳນວຍການ)</span>`;
             }
 
-            // ຂໍ້ 2: ຖ້າບົດສອນຖືກກວດໂດຍ "ຫົວໜ້າວິຊາ": ສະແດງສະຖານະໃນໜ້າຈໍຂອງຄູສອນວ່າ "ຫົວໜ້າວິຊາອະນຸມັດແລ້ວ", ແຕ່ສະແດງສະຖານະ "ລໍຖ້າອະນຸມັດ" ຈາກວິຊາການ ແລະ ຜູ້ອຳນວຍການ
-            if (head && !academic && !director) {
-                if (role === 'Teacher') {
-                    return `<span class="px-2.5 py-1 bg-amber-100 text-amber-800 text-xs font-bold rounded-full">ຫົວໜ້າວິຊາອະນຸມັດແລ້ວ (ລໍຖ້າອະນຸມັດ ຈາກວິຊາການ ແລະ ຜູ້ອຳນວຍການ)</span>`;
-                }
-                return `<span class="px-2.5 py-1 bg-amber-100 text-amber-800 text-xs font-bold rounded-full">ຫົວໜ້າວິຊາອະນຸມັດແລ້ວ (ລໍຖ້າວິຊາການ ແລະ ຜູ້ອຳນວຍການ)</span>`;
-            }
-
-            // ຂໍ້ 1: ຖ້າບົດສອນຖືກສ້າງຂຶ້ນມາໃໝ່: ສະແດງສະຖານະຢູ່ໃນໜ້າຈໍຂອງຄູສອນວ່າ "ລໍຖ້າອະນຸມັດ" (Pending)
+            // ຂໍ້ 1: ຖ້າບົດສອນຖືກສ້າງຂຶ້ນມາໃໝ່ / ຍັງບໍ່ມີໃຜອະນຸມັດ
             if (role === 'Teacher') {
                 return `<span class="px-2.5 py-1 bg-amber-100 text-amber-800 text-xs font-bold rounded-full">ລໍຖ້າອະນຸມັດ (Pending)</span>`;
             }
