@@ -818,7 +818,7 @@
             const visibleLessons = getFilteredLessons();
 
             document.getElementById('statTotal').innerText = visibleLessons.length;
-            document.getElementById('statPending').innerText = visibleLessons.filter(l => !l.approvals.director && !l.isNeedsRevision).length;
+            document.getElementById('statPending').innerText = visibleLessons.filter(l => !(l.approvals.head && l.approvals.academic && l.approvals.director) && !l.isNeedsRevision).length;
             document.getElementById('statApproved').innerText = visibleLessons.filter(l => l.approvals.head && l.approvals.academic && l.approvals.director).length;
             document.getElementById('statRevision').innerText = visibleLessons.filter(l => l.isNeedsRevision).length;
 
@@ -837,7 +837,7 @@
                     datasets: [{
                         data: [
                             data.filter(l => l.approvals.head && l.approvals.academic && l.approvals.director).length,
-                            data.filter(l => !l.approvals.director && !l.isNeedsRevision).length,
+                            data.filter(l => !(l.approvals.head && l.approvals.academic && l.approvals.director) && !l.isNeedsRevision).length,
                             data.filter(l => l.isNeedsRevision).length
                         ],
                         backgroundColor: ['#10b981', '#f59e0b', '#f43f5e']
@@ -889,7 +889,7 @@
             `).join('');
         }
 
-        // 3. ປັບປຸງ Function ສະແດງຂໍ້ຄວາມສະຖານະຕາມລຳດັບການອະນຸມັດ
+        // 3. ປັບປຸງ Function ສະແດງຂໍ້ຄວາມສະຖານະຕາມລຳດັບການອະນຸມັດ ແລະ ຕາມບົດບາດຜູ້ໃຊ້ (User Role Dynamic Status Badge)
         function getStatusBadge(lesson) {
             if (!lesson.approvals) {
                 lesson.approvals = { head: false, academic: false, director: false };
@@ -900,24 +900,78 @@
             }
 
             const { head, academic, director } = lesson.approvals;
+            const role = currentUser ? currentUser.role : 'Teacher';
 
-            // ເມື່ອຜູ້ອຳນວຍການອະນຸມັດແລ້ວ: ສະແດງສະຖານະ "ອະນຸມັດທັງໝົດ"
-            if (director) {
+            // 1. ຖ້າອະນຸມັດຄົບ 3 ຝ່າຍແລ້ວ -> ແສງ "✅ ອະນຸມັດທັງໝົດ"
+            if (head && academic && director) {
                 return `<span class="px-2.5 py-1 bg-emerald-100 text-emerald-700 text-xs font-bold rounded-full">✅ ອະນຸມັດທັງໝົດ</span>`;
             }
 
-            // ຖ້າຫົວໜ້າວິຊາ ແລະ ວິຊາການອະນຸມັດແລ້ວ: ສະແດງວ່າຫົວໜ້າວິຊາອະນຸມັດແລ້ວ, ວິຊາການອະນຸມັດແລ້ວ ແລະ ລໍຖ້າອະນຸມັດຈາກ ຜູ້ອໍານວຍການ
-            if (head && academic) {
-                return `<span class="px-2.5 py-1 bg-amber-100 text-amber-800 text-xs font-bold rounded-full">ຫົວໜ້າວິຊາອະນຸມັດແລ້ວ, ວິຊາການອະນຸມັດແລ້ວ ແລະ ລໍຖ້າອະນຸມັດຈາກ ຜູ້ອໍານວຍການ</span>`;
+            // 2. ສຳລັບ ຄູສອນ (Teacher)
+            if (role === 'Teacher') {
+                if (head && academic) {
+                    return `<span class="px-2.5 py-1 bg-amber-100 text-amber-800 text-xs font-bold rounded-full">ຫົວໜ້າວິຊາ ແລະ ວິຊາການ ອະນຸມັດແລ້ວ (ລໍຖ້າຜູ້ອຳນວຍການ)</span>`;
+                }
+                if (head) {
+                    return `<span class="px-2.5 py-1 bg-amber-100 text-amber-800 text-xs font-bold rounded-full">ຫົວໜ້າວິຊາອະນຸມັດແລ້ວ (ລໍຖ້າວິຊາການ ແລະ ຜູ້ອຳນວຍການ)</span>`;
+                }
+                // ຖ້າ ຜູ້ອຳນວຍການ ຫຼື ວິຊາການ ອະນຸມັດກ່ອນ ແຕ່ ຫົວໜ້າວິຊາ ຍັງບໍ່ທັນອະນຸມັດ
+                return `<span class="px-2.5 py-1 bg-amber-100 text-amber-700 text-xs font-bold rounded-full">⏳ ລໍຖ້າຫົວໜ້າວິຊາ ແລະ ວິຊາການອະນຸມັດ</span>`;
             }
 
-            // ຖ້າຫົວໜ້າວິຊາອະນຸມັດແລ້ວ: ສະແດງວ່າຫົວໜ້າວິຊາອະນຸມັດແລ້ວ ແລະ ລໍຖ້າອະນຸມັດຈາກ ວິຊາການ ແລະ ຜູ້ອໍານວຍການ
-            if (head) {
-                return `<span class="px-2.5 py-1 bg-amber-100 text-amber-800 text-xs font-bold rounded-full">ຫົວໜ້າວິຊາອະນຸມັດແລ້ວ ແລະ ລໍຖ້າອະນຸມັດຈາກ ວິຊາການ ແລະ ຜູ້ອໍານວຍການ</span>`;
+            // 3. ສຳລັບ ຫົວໜ້າວິຊາ (Head)
+            if (role === 'Head') {
+                if (head && academic) {
+                    return `<span class="px-2.5 py-1 bg-amber-100 text-amber-800 text-xs font-bold rounded-full">ທ່ານ ແລະ ວິຊາການ ອະນຸມັດແລ້ວ (ລໍຖ້າຜູ້ອຳນວຍການ)</span>`;
+                }
+                if (head) {
+                    return `<span class="px-2.5 py-1 bg-amber-100 text-amber-800 text-xs font-bold rounded-full">ທ່ານອະນຸມັດແລ້ວ (ລໍຖ້າວິຊາການ ແລະ ຜູ້ອຳນວຍການ)</span>`;
+                }
+                // ຖ້າ ຜູ້ອຳນວຍການ ອະນຸມັດກ່ອນ
+                if (director || academic) {
+                    return `<span class="px-2.5 py-1 bg-amber-100 text-amber-800 text-xs font-bold rounded-full">⏳ ລໍຖ້າວິຊາການອະນຸມັດ (ແລະ ທ່ານກວດກາ)</span>`;
+                }
+                return `<span class="px-2.5 py-1 bg-amber-100 text-amber-700 text-xs font-bold rounded-full">⏳ ລໍຖ້າການອະນຸມັດ</span>`;
             }
 
-            // ຖ້າຍັງບໍ່ມີການອະນຸມັດແມ່ນສະແດງ: "ລໍຖ້າອະນຸມັດ"
-            return `<span class="px-2.5 py-1 bg-amber-100 text-amber-700 text-xs font-bold rounded-full">⏳ ລໍຖ້າອະນຸມັດ</span>`;
+            // 4. ສຳລັບ ວິຊາການ (Academic)
+            if (role === 'Academic') {
+                if (director && !head) {
+                    return `<span class="px-2.5 py-1 bg-amber-100 text-amber-800 text-xs font-bold rounded-full">ຜູ້ອຳນວຍການອະນຸມັດແລ້ວ (ລໍຖ້າຫົວໜ້າວິຊາ ແລະ ທ່ານກວດກາ)</span>`;
+                }
+                if (director && head) {
+                    return `<span class="px-2.5 py-1 bg-amber-100 text-amber-800 text-xs font-bold rounded-full">ຜູ້ອຳນວຍການ ແລະ ຫົວໜ້າວິຊາ ອະນຸມັດແລ້ວ (ລໍຖ້າທ່ານອະນຸມັດ)</span>`;
+                }
+                if (head && academic) {
+                    return `<span class="px-2.5 py-1 bg-amber-100 text-amber-800 text-xs font-bold rounded-full">ທ່ານ ແລະ ຫົວໜ້າວິຊາ ອະນຸມັດແລ້ວ (ລໍຖ້າຜູ້ອຳນວຍການ)</span>`;
+                }
+                if (academic) {
+                    return `<span class="px-2.5 py-1 bg-amber-100 text-amber-800 text-xs font-bold rounded-full">ທ່ານອະນຸມັດແລ້ວ (ລໍຖ້າຫົວໜ້າວິຊາ ແລະ ຜູ້ອຳນວຍການ)</span>`;
+                }
+                if (head) {
+                    return `<span class="px-2.5 py-1 bg-amber-100 text-amber-800 text-xs font-bold rounded-full">ຫົວໜ້າວິຊາອະນຸມັດແລ້ວ (ລໍຖ້າທ່ານອະນຸມັດ)</span>`;
+                }
+                return `<span class="px-2.5 py-1 bg-amber-100 text-amber-700 text-xs font-bold rounded-full">⏳ ລໍຖ້າການອະນຸມັດ</span>`;
+            }
+
+            // 5. ສຳລັບ ຜູ້ອຳນວຍການ (Director)
+            if (role === 'Director') {
+                if (head && academic) {
+                    return `<span class="px-2.5 py-1 bg-amber-100 text-amber-800 text-xs font-bold rounded-full">ຫົວໜ້າວິຊາ ແລະ ວິຊາການ ອະນຸມັດແລ້ວ (ລໍຖ້າທ່ານອະນຸມັດ)</span>`;
+                }
+                if (head) {
+                    return `<span class="px-2.5 py-1 bg-amber-100 text-amber-800 text-xs font-bold rounded-full">ຫົວໜ້າວິຊາອະນຸມັດແລ້ວ (ລໍຖ້າວິຊາການ ແລະ ທ່ານອະນຸມັດ)</span>`;
+                }
+                if (academic) {
+                    return `<span class="px-2.5 py-1 bg-amber-100 text-amber-800 text-xs font-bold rounded-full">ວິຊາການອະນຸມັດແລ້ວ (ລໍຖ້າຫົວໜ້າວິຊາ ແລະ ທ່ານອະນຸມັດ)</span>`;
+                }
+                if (director) {
+                    return `<span class="px-2.5 py-1 bg-amber-100 text-amber-800 text-xs font-bold rounded-full">ທ່ານອະນຸມັດແລ້ວ (ລໍຖ້າຫົວໜ້າວິຊາ ແລະ ວິຊາການ)</span>`;
+                }
+                return `<span class="px-2.5 py-1 bg-amber-100 text-amber-700 text-xs font-bold rounded-full">⏳ ລໍຖ້າການອະນຸມັດ</span>`;
+            }
+
+            return `<span class="px-2.5 py-1 bg-amber-100 text-amber-700 text-xs font-bold rounded-full">⏳ ລໍຖ້າການອະນຸມັດ</span>`;
         }
 
         function openReviewModal(lessonId) {
@@ -934,22 +988,42 @@
             document.getElementById('modalDriveLink').href = lesson.driveUrl;
 
             const historyContainer = document.getElementById('modalApprovalHistory');
+
+            // ຄວບຄຸມການສະແດງຜົນປະຫວັດການອະນຸມັດໃນ Modal ໃຫ້ສອດຄ່ອງກັບແຕ່ລະ Role
+            let headText = lesson.approvals.head ? '✅ ອະນຸມັດແລ້ວ' : '⏳ ລໍຖ້າການອະນຸມັດ';
+            let academicText = lesson.approvals.academic ? '✅ ອະນຸມັດແລ້ວ' : '⏳ ລໍຖ້າການອະນຸມັດ';
+            let directorText = lesson.approvals.director ? '✅ ອະນຸມັດແລ້ວ' : '⏳ ລໍຖ້າການອະນຸມັດ';
+
+            if (currentUser.role === 'Teacher') {
+                if (!lesson.approvals.head) {
+                    academicText = '⏳ ລໍຖ້າຫົວໜ້າວິຊາອະນຸມັດກ່ອນ';
+                    directorText = '⏳ ລໍຖ້າຫົວໜ້າວິຊາອະນຸມັດກ່ອນ';
+                }
+            } else if (currentUser.role === 'Head') {
+                if (!lesson.approvals.head && lesson.approvals.director) {
+                    directorText = '✅ ຜູ້ອຳນວຍການອະນຸມັດແລ້ວ (ລໍຖ້າວິຊາການ ແລະ ທ່ານ)';
+                }
+            } else if (currentUser.role === 'Academic') {
+                if (lesson.approvals.director) {
+                    directorText = '✅ ຜູ້ອຳນວຍການອະນຸມັດແລ້ວ';
+                }
+            }
+
             historyContainer.innerHTML = `
                 <div class="flex items-center justify-between p-2 rounded ${lesson.approvals.head ? 'bg-emerald-50 text-emerald-800' : 'bg-slate-100 text-slate-600'}">
-                    <span>1. ຫົວໜ້າວິຊາ: <b>${lesson.approvals.head ? '✅ ອະນຸມັດແລ້ວ' : '⏳ ລໍຖ້າການອະນຸມັດ'}</b></span>
+                    <span>1. ຫົວໜ້າວິຊາ: <b>${headText}</b></span>
                     <span class="text-slate-500 text-[11px]">${lesson.comments.head ? '💬 "' + lesson.comments.head + '"' : ''}</span>
                 </div>
                 <div class="flex items-center justify-between p-2 rounded ${lesson.approvals.academic ? 'bg-emerald-50 text-emerald-800' : 'bg-slate-100 text-slate-600'}">
-                    <span>2. ວິຊາການ: <b>${lesson.approvals.academic ? '✅ ອະນຸມັດແລ້ວ' : '⏳ ລໍຖ້າການອະນຸມັດ'}</b></span>
+                    <span>2. ວິຊາການ: <b>${academicText}</b></span>
                     <span class="text-slate-500 text-[11px]">${lesson.comments.academic ? '💬 "' + lesson.comments.academic + '"' : ''}</span>
                 </div>
                 <div class="flex items-center justify-between p-2 rounded ${lesson.approvals.director ? 'bg-emerald-50 text-emerald-800' : 'bg-slate-100 text-slate-600'}">
-                    <span>3. ຜູ້ອໍານວຍການ: <b>${lesson.approvals.director ? '✅ ອະນຸມັດແລ້ວ' : '⏳ ລໍຖ້າການອະນຸມັດ'}</b></span>
+                    <span>3. ຜູ້ອໍານວຍການ: <b>${directorText}</b></span>
                     <span class="text-slate-500 text-[11px]">${lesson.comments.director ? '💬 "' + lesson.comments.director + '"' : ''}</span>
                 </div>
             `;
 
-            // ເພີ່ມການກວດສອບວ່າ: ຄູປະຈຳວິຊາ (Teacher) ຈະບໍ່ມີສິດກົດອະນຸມັດ ຫຼື ສັ່ງໃຫ້ແກ້ໄຂໄດ້
             const isTeacherRole = (currentUser.role === 'Teacher');
             const adminActions = document.getElementById('modalAdminActions');
             const teacherActions = document.getElementById('modalTeacherActions');
@@ -979,7 +1053,6 @@
         }
 
         function submitReview(actionType) {
-            // ປ້ອງກັນບໍ່ໃຫ້ ຄູປະຈຳວິຊາ (Teacher) ກົດອະນຸມັດ ຫຼື ສັ່ງແກ້ໄຂ
             if (currentUser.role === 'Teacher') {
                 alert('❌ ຄູປະຈຳວິຊາ (Teacher) ບໍ່ມີສິດກົດອະນຸມັດ ຫຼື ສັ່ງໃຫ້ແກ້ໄຂໄດ້!');
                 return;
