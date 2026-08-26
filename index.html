@@ -152,7 +152,10 @@
                     </div>
 
                     <div id="lessonFilters" class="flex flex-wrap gap-2 items-center bg-white p-2 rounded-xl border border-slate-200 shadow-sm">
-                        <span class="text-xs font-bold text-slate-500 px-2">🔍 ໂຕຕັອດກອງ:</span>
+                        <span class="text-xs font-bold text-slate-500 px-2">🔍 ໂຕກັ່ນຕອງ:</span>
+                        <select id="filterGrade" onchange="renderLessons()" class="text-xs border border-slate-300 rounded-lg p-2 bg-slate-50 focus:ring-2 focus:ring-indigo-500 font-medium">
+                            <option value="ALL">-- ເລືອກທຸກຊັ້ນຮຽນ --</option>
+                        </select>
                         <select id="filterSubject" onchange="renderLessons()" class="text-xs border border-slate-300 rounded-lg p-2 bg-slate-50 focus:ring-2 focus:ring-indigo-500 font-medium">
                             <option value="ALL">-- ເລືອກທຸກວິຊາ --</option>
                         </select>
@@ -431,7 +434,7 @@
 
     <!-- JS APPLICATION LOGIC -->
     <script>
-        // 1. ອັບເດດລາຍຊື່ວິຊາທັງໝົດຕາມຮູບພາບ
+        // 1. ອັບເດດລາຍຊື່ວິຊາທັງໝົດ
         let defaultSubjects = [
             'ຄະນິດສາດ', 'ພາສາລາວ', 'ICT', 'ປະຫວັດສາດ', 'ຟີຊິກສາດ', 
             'ຊີວະສາດ', 'ເຄມີສາດ', 'ພູມສາດ', 'ສຶກສາພົນລະເມືອງ', 
@@ -441,13 +444,13 @@
         let subjects = JSON.parse(localStorage.getItem('SUBJECTS_DATA')) || defaultSubjects;
         let grades = ['ມ.1', 'ມ.2', 'ມ.3', 'ມ.4', 'ມ.5', 'ມ.6', 'ມ.7'];
 
-        // 2. ອັບເດດລາຍຊື່ຜູ້ໃຊ້ທັງໝົດຕາມຮູບພາບ
+        // 2. ອັບເດດລາຍຊື່ຜູ້ໃຊ້ທັງໝົດ
         let defaultUsers = [
             { id: '1', name: 'ອາຈານ ນາງນີລາວັນ ວິຣະຖາວອນ', role: 'Director', managedSubjects: ['ALL'], pin: '1234' },
             { id: '2', name: 'ອາຈານ ສີໂຫ ວັນນະສີ', role: 'Academic', managedSubjects: ['ALL'], pin: '1234' },
             { id: '3', name: 'ອາຈານ ສຸນິດຕາ ພິມມະສອນ', role: 'Head', managedSubjects: ['ຄະນິດສາດ', 'ພາສາຈີນ'], pin: '1234' },
             { id: '4', name: 'ອາຈານ ສອນຕາ ໄຊຍະຖາ', role: 'Head', managedSubjects: ['ຟີຊິກສາດ', 'ຊີວະສາດ', 'ເຄມີສາດ'], pin: '1234' },
-            { id: '5', name: 'ອາຈານ ໄກສອນ ທະນູນຄຳ', role: 'Head', managedSubjects: ['ພາສາລາວ'], pin: '1234' },
+            { id: '5', name: 'ອາຈານ ໄກສອນ ທະນູຄຳ', role: 'Head', managedSubjects: ['ພາສາລາວ'], pin: '1234' },
             { id: '6', name: 'ອາຈານ ພຸດພະພອນ ພູມິນ', role: 'Head', managedSubjects: ['ເຄມີສາດ'], pin: '1234' },
             { id: '7', name: 'ອາຈານ ຄອນສະໄໝ ໂສມເສນີວົງ', role: 'Head', managedSubjects: ['ປະຫວັດສາດ', 'ພູມສາດ'], pin: '1234' },
             { id: '8', name: 'ອາຈານ ສຸລິວັນ ມຸນິວົງ', role: 'Head', managedSubjects: ['ສຶກສາພົນລະເມືອງ', 'ວິທະຍາສາດສັງຄົມ'], pin: '1234' },
@@ -456,7 +459,7 @@
             { id: '11', name: 'ອາຈານ ພິລາວັນ ກອງລາ', role: 'Teacher', managedSubjects: ['ພາສາລາວ'], pin: '1234' },
             { id: '12', name: 'ອາຈານ ເຈຕາລິນ ພິມມະສອນ', role: 'Teacher', managedSubjects: ['ພາສາລາວ'], pin: '1234' },
             { id: '13', name: 'ອາຈານ ບຸນຕາ ຄຳພູວົງ', role: 'Teacher', managedSubjects: ['ຄະນິດສາດ'], pin: '1234' },
-            { id: '14', name: 'ອາຈານ ແສງເດືອນ ວິຊຸນນະະລາດ', role: 'Teacher', managedSubjects: ['ຄະນິດສາດ'], pin: '1234' },
+            { id: '14', name: 'ອາຈານ ແສງເດືອນ ວິຊຸນນະລາດ', role: 'Teacher', managedSubjects: ['ຄະນິດສາດ'], pin: '1234' },
             { id: '15', name: 'ອາຈານ ສຸກັນ ຍາສາມສະອາດ', role: 'Teacher', managedSubjects: ['ຄະນິດສາດ'], pin: '1234' },
             { id: '16', name: 'ອາຈານ ແສງມະນີ ສີຊານົນ', role: 'Teacher', managedSubjects: ['ຄະນິດສາດ'], pin: '1234' },
             { id: '17', name: 'ອາຈານ ໂອລິເຊ ຈັນທະວົງ', role: 'Teacher', managedSubjects: ['ຄະນິດສາດ'], pin: '1234' },
@@ -468,13 +471,13 @@
             { id: '23', name: 'ອາຈານ ໄຄແກ້ວ ພົມມະຄໍາ', role: 'Teacher', managedSubjects: ['ຟີຊິກສາດ'], pin: '1234' },
             { id: '24', name: 'ອາຈານ ກອງມະນີ ອຸ່ນມະໂນ', role: 'Teacher', managedSubjects: ['ຟີຊິກສາດ'], pin: '1234' },
             { id: '25', name: 'ອາຈານ ສີໂຫ ວັນນະສີ', role: 'Head', managedSubjects: ['ຟີຊິກສາດ'], pin: '1234' },
-            { id: '26', name: 'ອາຈານ ເມກະຫຼາດ ໄຊຍະວົງສາ', role: 'Teacher', managedSubjects: ['ຊີວະສາດ'], pin: '1234' },
-            { id: '27', name: 'ອາຈານ ແທນຟຸ ໄຊຍະວື່', role: 'Teacher', managedSubjects: ['ພູມສາດ'], pin: '1234' },
+            { id: '26', name: 'ອາຈານ ເມກຂະຫຼາ ໄຊຍະວົງສາ', role: 'Teacher', managedSubjects: ['ຊີວະສາດ'], pin: '1234' },
+            { id: '27', name: 'ອາຈານ ແທນຟຸ ໄຊຍະວື', role: 'Teacher', managedSubjects: ['ພູມສາດ'], pin: '1234' },
             { id: '28', name: 'ອາຈານ ລັດສະໝີ ໄມຈັນຕາງ', role: 'Teacher', managedSubjects: ['ພູມສາດ'], pin: '1234' },
             { id: '29', name: 'ອາຈານ ຍອດ ວົງສຳພັນ', role: 'Teacher', managedSubjects: ['ສຶກສາພົນລະເມືອງ'], pin: '1234' },
             { id: '30', name: 'ອາຈານ ປານຕາ ສາຍຊົງເດດ', role: 'Teacher', managedSubjects: ['ICT'], pin: '1234' },
             { id: '31', name: 'ອາຈານ ພັດສະລິນ ປະດິດ', role: 'Teacher', managedSubjects: ['ພະລະສຶກສາ'], pin: '1234' },
-            { id: '32', name: 'ອາຈານ ແສງມະນີ ສິບໍລິບານ', role: 'Teacher', managedSubjects: ['ພາສາຈີນ'], pin: '1234' },
+            { id: '32', name: 'ອາຈານ ແສງມະນີ ສີບໍລິບານ', role: 'Teacher', managedSubjects: ['ພາສາຈີນ'], pin: '1234' },
             { id: '33', name: 'ອາຈານ ຄຳປະສົງ ຊົງວິໄລ', role: 'Teacher', managedSubjects: ['ພາສາຈີນ'], pin: '1234' },
             { id: '34', name: 'ອາຈານ ວາດສະໜາ ດາລາວົງ', role: 'Teacher', managedSubjects: ['ພາສາຈີນ'], pin: '1234' },
             { id: '35', name: 'ອາຈານ ແມ໋ມມະນີ ວຽງຄຳ', role: 'Teacher', managedSubjects: ['ພາສາຈີນ'], pin: '1234' },
@@ -539,6 +542,10 @@
             localStorage.setItem('USERS_DATA', JSON.stringify(users));
         }
 
+        function saveLessonsToStorage() {
+            localStorage.setItem('LESSONS_DATA', JSON.stringify(lessons));
+        }
+
         function populateUserDropdown() {
             const select = document.getElementById('loginUserSelect');
             select.innerHTML = users.map(u => `<option value="${u.id}">${u.name} (${getRoleLabel(u.role)})</option>`).join('');
@@ -565,9 +572,11 @@
         }
 
         function populateFilterDropdowns() {
+            const gradeFilter = document.getElementById('filterGrade');
             const subFilter = document.getElementById('filterSubject');
             const teacherFilter = document.getElementById('filterTeacher');
 
+            gradeFilter.innerHTML = `<option value="ALL">-- ເລືອກທຸກຊັ້ນຮຽນ --</option>` + grades.map(g => `<option value="${g}">${g}</option>`).join('');
             subFilter.innerHTML = `<option value="ALL">-- ເລືອກທຸກວິຊາ --</option>` + subjects.map(s => `<option value="${s}">${s}</option>`).join('');
             
             const teacherNames = [...new Set(users.map(u => u.name))];
@@ -729,7 +738,7 @@
                 alert(`🔄 ອັບເດດບົດສອນ ແລະ ຣີເຊັດສະຖານະເປັນ "ລໍຖ້າອະນຸມັດ" ເພື່ອໃຫ້ກວດໃໝ່!`);
             } else {
                 const newLesson = {
-                    id: 'L' + (lessons.length + 1),
+                    id: 'L' + (lessons.length + 1) + '_' + Date.now(),
                     subject: subject,
                     grade: grade,
                     title: title,
@@ -744,7 +753,7 @@
                 alert(`🚀 ອັບໂຫຼດບົດສອນສຳເລັດແລ້ວ!`);
             }
 
-            localStorage.setItem('LESSONS_DATA', JSON.stringify(lessons));
+            saveLessonsToStorage();
             
             document.getElementById('uploadForm').reset();
             selectedFile = null;
@@ -753,6 +762,16 @@
             switchTab('lessons');
             renderLessons();
             renderDashboard();
+        }
+
+        function deleteLesson(lessonId) {
+            if (confirm('ທ່ານຕ້ອງການລົບ ບົດສອນ ນີ້ອອກຈາກລະບົບແທ້ບໍ?')) {
+                lessons = lessons.filter(l => l.id !== lessonId);
+                saveLessonsToStorage();
+                renderLessons();
+                renderDashboard();
+                alert('🗑️ ລົບບົດສອນອອກຈາກລະບົບเรียบร้อยແລ້ວ!');
+            }
         }
 
         function handleSaveDriveConfig(e) {
@@ -778,9 +797,13 @@
                 list = lessons.filter(l => l.teacher === currentUser.name);
             }
 
+            const gradeVal = document.getElementById('filterGrade') ? document.getElementById('filterGrade').value : 'ALL';
             const subVal = document.getElementById('filterSubject') ? document.getElementById('filterSubject').value : 'ALL';
             const teacherVal = document.getElementById('filterTeacher') ? document.getElementById('filterTeacher').value : 'ALL';
 
+            if (gradeVal !== 'ALL') {
+                list = list.filter(l => l.grade === gradeVal);
+            }
             if (subVal !== 'ALL') {
                 list = list.filter(l => l.subject === subVal);
             }
@@ -854,9 +877,12 @@
                     <td class="p-4 text-slate-600">${l.teacher}</td>
                     <td class="p-4 text-slate-500 text-xs">${l.date}</td>
                     <td class="p-4">${getStatusBadge(l)}</td>
-                    <td class="p-4 text-center">
-                        <button onclick="openReviewModal('${l.id}')" class="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-bold text-xs rounded-md transition">
-                            👁️ ກວດກາ / ເບິ່ງໄຟລ໌
+                    <td class="p-4 text-center space-x-1">
+                        <button onclick="openReviewModal('${l.id}')" class="px-2.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-bold text-xs rounded-md transition inline-flex items-center gap-1">
+                            👁️ ກວດກາ
+                        </button>
+                        <button onclick="deleteLesson('${l.id}')" class="px-2.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs rounded-md transition inline-flex items-center gap-1" title="ລົບບົດສອນອອກ">
+                            🗑️ ລົບ
                         </button>
                     </td>
                 </tr>
@@ -875,18 +901,22 @@
 
             const { head, academic, director } = lesson.approvals;
 
-            if (head && academic && director) {
+            // ເມື່ອຜູ້ອຳນວຍການອະນຸມັດແລ້ວ: ສະແດງສະຖານະ "ອະນຸມັດທັງໝົດ"
+            if (director) {
                 return `<span class="px-2.5 py-1 bg-emerald-100 text-emerald-700 text-xs font-bold rounded-full">✅ ອະນຸມັດທັງໝົດ</span>`;
             }
 
-            if (head && academic && !director) {
-                return `<span class="px-2.5 py-1 bg-amber-100 text-amber-800 text-xs font-bold rounded-full">ສະຖານະ: ຫົວໜ້າວິຊາອະນຸມັດແລ້ວ, ວິຊາການອະນຸມັດແລ້ວ ແລະ ລໍຖ້າອະນຸມັດຈາກ ຜູ້ອໍານວຍການ</span>`;
+            // ຖ້າຫົວໜ້າວິຊາ ແລະ ວິຊາການອະນຸມັດແລ້ວ: ສະແດງວ່າຫົວໜ້າວິຊາອະນຸມັດແລ້ວ, ວິຊາການອະນຸມັດແລ້ວ ແລະ ລໍຖ້າອະນຸມັດຈາກ ຜູ້ອໍານວຍການ
+            if (head && academic) {
+                return `<span class="px-2.5 py-1 bg-amber-100 text-amber-800 text-xs font-bold rounded-full">ຫົວໜ້າວິຊາອະນຸມັດແລ້ວ, ວິຊາການອະນຸມັດແລ້ວ ແລະ ລໍຖ້າອະນຸມັດຈາກ ຜູ້ອໍານວຍການ</span>`;
             }
 
-            if (head && !academic) {
-                return `<span class="px-2.5 py-1 bg-amber-100 text-amber-800 text-xs font-bold rounded-full">ສະຖານະ: ຫົວໜ້າວິຊາອະນຸມັດແລ້ວ ແລະ ລໍຖ້າອະນຸມັດຈາກ ວິຊາການ ແລະ ຜູ້ອໍານວຍການ</span>`;
+            // ຖ້າຫົວໜ້າວິຊາອະນຸມັດແລ້ວ: ສະແດງວ່າຫົວໜ້າວິຊາອະນຸມັດແລ້ວ ແລະ ລໍຖ້າອະນຸມັດຈາກ ວິຊາການ ແລະ ຜູ້ອໍານວຍການ
+            if (head) {
+                return `<span class="px-2.5 py-1 bg-amber-100 text-amber-800 text-xs font-bold rounded-full">ຫົວໜ້າວິຊາອະນຸມັດແລ້ວ ແລະ ລໍຖ້າອະນຸມັດຈາກ ວິຊາການ ແລະ ຜູ້ອໍານວຍການ</span>`;
             }
 
+            // ຖ້າຍັງບໍ່ມີການອະນຸມັດແມ່ນສະແດງ: "ລໍຖ້າອະນຸມັດ"
             return `<span class="px-2.5 py-1 bg-amber-100 text-amber-700 text-xs font-bold rounded-full">⏳ ລໍຖ້າອະນຸມັດ</span>`;
         }
 
@@ -919,6 +949,7 @@
                 </div>
             `;
 
+            // ເພີ່ມການກວດສອບວ່າ: ຄູປະຈຳວິຊາ (Teacher) ຈະບໍ່ມີສິດກົດອະນຸມັດ ຫຼື ສັ່ງໃຫ້ແກ້ໄຂໄດ້
             const isTeacherRole = (currentUser.role === 'Teacher');
             const adminActions = document.getElementById('modalAdminActions');
             const teacherActions = document.getElementById('modalTeacherActions');
@@ -948,6 +979,7 @@
         }
 
         function submitReview(actionType) {
+            // ປ້ອງກັນບໍ່ໃຫ້ ຄູປະຈຳວິຊາ (Teacher) ກົດອະນຸມັດ ຫຼື ສັ່ງແກ້ໄຂ
             if (currentUser.role === 'Teacher') {
                 alert('❌ ຄູປະຈຳວິຊາ (Teacher) ບໍ່ມີສິດກົດອະນຸມັດ ຫຼື ສັ່ງໃຫ້ແກ້ໄຂໄດ້!');
                 return;
@@ -977,7 +1009,7 @@
                 }
             }
 
-            localStorage.setItem('LESSONS_DATA', JSON.stringify(lessons));
+            saveLessonsToStorage();
             closeReviewModal();
             renderLessons();
             renderDashboard();
