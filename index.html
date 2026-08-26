@@ -434,7 +434,67 @@
 
     <!-- JS APPLICATION LOGIC -->
     <script>
-        // 1. ອັບເດດລາຍຊື່ວິຊາທັງໝົດ
+        // 1. ຟັງຊັນກວດສອບສະຖານະຕາມເງື່ອນໄຂ 1-5 ຢ່າງເຂັ້ມງວດ
+        function getApprovalStatusText(lesson, viewerRole) {
+            let headApproved = lesson.approvals ? lesson.approvals.head : lesson.headApproved;
+            let academicApproved = lesson.approvals ? lesson.approvals.academic : lesson.academicApproved;
+            let directorApproved = lesson.approvals ? lesson.approvals.director : lesson.directorApproved;
+            let role = (viewerRole || '').toLowerCase();
+
+            // ເງື່ອນໄຂ 4: ເມື່ອ "ຜູ້ອຳນວຍການ" ອະນຸມັດແລ້ວ (ແລະ ຫົວໜ້າວິຊາ + ວິຊາການ ອະນຸມັດແລ້ວ): ສະແດງ "ອະນຸມັດທັງໝົດ" (Fully Approved)
+            if (headApproved && academicApproved && directorApproved) {
+                return "ອະນຸມັດທັງໝົດ (Fully Approved)";
+            }
+
+            // ເງື່ອນໄຂ 1: ຖ້າບົດສອນຖືກສ້າງຂຶ້ນມາໃໝ່: ສະແດງສະຖານະຢູ່ໃນໜ້າຈໍຂອງຄູສອນວ່າ "ລໍຖ້າອະນຸມັດ" (Pending)
+            if (!headApproved && !academicApproved && !directorApproved) {
+                if (role === 'teacher') return "ລໍຖ້າອະນຸມັດ (Pending)";
+                return "ລໍຖ້າການກວດສອບ";
+            }
+
+            // ເງື່ອນໄຂ 5: ກໍລະນີ ຜູ້ອຳນວຍການອະນຸມັດກ່ອນ (ແຕ່ ຫົວໜ້າວິຊາ ແລະ ວິຊາການ ຍັງ)
+            if (directorApproved && !headApproved && !academicApproved) {
+                if (role === 'director') return "ຜູ້ອຳນວຍການອະນຸມັດແລ້ວ, ແຕ່ລໍຖ້າການອະນຸມັດຈາກ ຫົວໜ້າວິຊາ ແລະ ວິຊາການ.";
+                if (role === 'head') return "ຜູ້ອຳນວຍການອະນຸມັດແລ້ວ, ແຕ່ລໍຖ້າຫົວໜ້າວິຊາ ແລະ ວິຊາການ.";
+                if (role === 'academic') return "ຜູ້ອຳນວຍການອະນຸມັດແລ້ວ, ແຕ່ລໍຖ້າຫົວໜ້າວິຊາ ແລະ ວິຊາການ.";
+                return "ຜູ້ອຳນວຍການອະນຸມັດແລ້ວ, ລໍຖ້າ ຫົວໜ້າວິຊາ ແລະ ວິຊາການ.";
+            }
+
+            // ເງື່ອນໄຂ 2: ຖ້າບົດສອນຖືກກວດໂດຍ "ຫົວໜ້າວິຊາ": ສະແດງສະຖານະໃນໜ້າຈໍຂອງຄູສອນວ່າ "ຫົວໜ້າວິຊາອະນຸມັດແລ້ວ", ແຕ່ສະແດງສະຖານະ "ລໍຖ້າອະນຸມັດ" ຈາກວິຊາການ ແລະ ຜູ້ອຳນວຍການ
+            if (headApproved && !academicApproved && !directorApproved) {
+                if (role === 'teacher') return "ຫົວໜ້າວິຊາອະນຸມັດແລ້ວ (ລໍຖ້າອະນຸມັດ ຈາກວິຊາການ ແລະ ຜູ້ອຳນວຍການ)";
+                if (role === 'head') return "ອະນຸມັດແລ້ວ (ລໍຖ້າ ວິຊາການ ແລະ ຜູ້ອຳນວຍການ).";
+                if (role === 'academic') return "ຫົວໜ້າວິຊາອະນຸມັດແລ້ວ, ລໍຖ້າທ່ານອະນຸມັດ ແລະ ຜູ້ອຳນວຍການ.";
+                if (role === 'director') return "ຫົວໜ້າວິຊາອະນຸມັດແລ້ວ, ລໍຖ້າ ວິຊາການ ແລະ ທ່ານ.";
+            }
+
+            // ກໍລະນີ ວິຊາການ ອະນຸມັດກ່ອນ (ແຕ່ ຫົວໜ້າວິຊາ ແລະ ຜູ້ອຳນວຍການ ຍັງ)
+            if (academicApproved && !headApproved && !directorApproved) {
+                if (role === 'teacher') return "ວິຊາການອະນຸມັດແລ້ວ, ລໍຖ້າການອະນຸມັດຈາກ ຫົວໜ້າວິຊາ ແລະ ຜູ້ອຳນວຍການ.";
+                if (role === 'academic') return "ອະນຸມັດແລ້ວ (ລໍຖ້າ ຫົວໜ້າວິຊາ ແລະ ຜູ້ອຳນວຍການ).";
+                if (role === 'head') return "ວິຊາການອະນຸມັດແລ້ວ, ລໍຖ້າທ່ານອະນຸມັດ ແລະ ຜູ້ອຳນວຍການ.";
+                if (role === 'director') return "ວິຊາການອະນຸມັດແລ້ວ, ລໍຖ້າ ຫົວໜ້າວິຊາ ແລະ ທ່ານ.";
+            }
+
+            // ເງື່ອນໄຂ 3: ຖ້າ "ຫົວໜ້າວິຊາ" ແລະ "ວິຊາການ" ອະນຸມັດແລ້ວ: ສະແດງສະຖານະໃນໜ້າຈໍຂອງຄູສອນວ່າ "ຫົວໜ້າວິຊາອະນຸມັດແລ້ວ, ວິຊາການອະນຸມັດແລ້ວ, ແຕ່ລໍຖ້າອະນຸມັດຈາກ ຜູ້ອຳນວຍການ"
+            if (headApproved && academicApproved && !directorApproved) {
+                if (role === 'teacher') return "ຫົວໜ້າວິຊາອະນຸມັດແລ້ວ, ວິຊາການອະນຸມັດແລ້ວ, ແຕ່ລໍຖ້າອະນຸມັດຈາກ ຜູ້ອຳນວຍການ";
+                return "ຫົວໜ້າວິຊາ ແລະ ວິຊາການ ອະນຸມັດແລ້ວ, ລໍຖ້າຜູ້ອຳນວຍການ.";
+            }
+
+            return "ກຳລັງດຳເນີນການກວດສອບ";
+        }
+
+        // 2. ກົດລະບຽບກວດສອບສິດການກົດປຸ່ມອະນຸມັດ (ຄູປະຈຳວິຊາ ບໍ່ມີສິດ)
+        function checkButtonPermission(userRole) {
+            let role = (userRole || '').toLowerCase();
+            if (role === 'teacher') {
+                return false; 
+            }
+            return true;
+        }
+
+        // ອັບເດດລາຍຊື່ວິຊາທັງໝົດ
         let defaultSubjects = [
             'ຄະນິດສາດ', 'ພາສາລາວ', 'ICT', 'ປະຫວັດສາດ', 'ຟີຊິກສາດ', 
             'ຊີວະສາດ', 'ເຄມີສາດ', 'ພູມສາດ', 'ສຶກສາພົນລະເມືອງ', 
@@ -444,7 +504,7 @@
         let subjects = JSON.parse(localStorage.getItem('SUBJECTS_DATA')) || defaultSubjects;
         let grades = ['ມ.1', 'ມ.2', 'ມ.3', 'ມ.4', 'ມ.5', 'ມ.6', 'ມ.7'];
 
-        // 2. ອັບເດດລາຍຊື່ຜູ້ໃຊ້ທັງໝົດ
+        // ອັບເດດລາຍຊື່ຜູ້ໃຊ້ທັງໝົດ
         let defaultUsers = [
             { id: '1', name: 'ອາຈານ ນາງນີລາວັນ ວິຣະຖາວອນ', role: 'Director', managedSubjects: ['ALL'], pin: '1234' },
             { id: '2', name: 'ອາຈານ ສີໂຫ ວັນນະສີ', role: 'Academic', managedSubjects: ['ALL'], pin: '1234' },
@@ -889,69 +949,24 @@
             `).join('');
         }
 
-        // 3. LOGIC ການກວດສອບ ແລະ ຈັດການສະຖານະການອະນຸມັດ (ກວດສອບຕາມເງື່ອນໄຂ 1-5 ຢ່າງເຂັ້ມງວດ)
-       <script>
-// ຕົວຢ່າງໂຄງສ້າງຂໍ້ມູນບົດສອນ ແລະ ຟັງຊັນກວດສອບສະຖານະຕາມເງື່ອນໄຂ
-function getApprovalStatusText(lesson, viewerRole) {
-    let headApproved = lesson.headApproved;       // ຫົວໜ້າວິຊາອະນຸມັດແລ້ວ (true/false)
-    let academicApproved = lesson.academicApproved; // ວິຊາການອະນຸມັດແລ້ວ (true/false)
-    let directorApproved = lesson.directorApproved; // ຜູ້ອຳນວຍການອະນຸມັດແລ້ວ (true/false)
+        // ສະແດງ Badge ສະຖານະໂດຍເອີ້ນໃຊ້ getApprovalStatusText
+        function getStatusBadge(lesson) {
+            if (lesson.isNeedsRevision) {
+                return `<span class="px-2.5 py-1 bg-rose-100 text-rose-700 text-xs font-bold rounded-full">🔄 ໃຫ້ແກ້ໄຂ</span>`;
+            }
 
-    // 1. ກໍລະນີອະນຸມັດຄົບທັງໝົດ
-    if (headApproved && academicApproved && directorApproved) {
-        return "ອະນຸມັດທັງໝົດ (Fully Approved)";
-    }
+            const role = currentUser ? currentUser.role : 'Teacher';
+            const statusText = getApprovalStatusText(lesson, role);
 
-    // 2. ກໍລະນີສ້າງຂຶ້ນມາໃໝ່ (ຍັງບໍ່ມີໃຜອະນຸມັດເລີຍ)
-    if (!headApproved && !academicApproved && !directorApproved) {
-        if (viewerRole === 'teacher') return "ລໍຖ້າອະນຸມັດ (Pending)";
-        return "ລໍຖ້າການກວດສອບ";
-    }
+            let isFullyApproved = lesson.approvals && lesson.approvals.head && lesson.approvals.academic && lesson.approvals.director;
 
-    // 3. ກໍລະນີ ຜູ້ອຳນວຍການອະນຸມັດກ່ອນ (ແຕ່ ຫົວໜ້າວິຊາ ແລະ ວິຊາການ ຍັງ)
-    if (directorApproved && !headApproved && !academicApproved) {
-        if (viewerRole === 'director') return "ຜູ້ອຳນວຍການອະນຸມັດແລ້ວ, ແຕ່ລໍຖ້າການອະນຸມັດຈາກ ຫົວໜ້າວິຊາ ແລະ ວິຊາການ.";
-        if (viewerRole === 'head') return "ຜູ້ອຳນວຍການອະນຸມັດແລ້ວ, ແຕ່ລໍຖ້າຫົວໜ້າວິຊາ ແລະ ວິຊາການ.";
-        if (viewerRole === 'academic') return "ຜູ້ອຳນວຍການອະນຸມັດແລ້ວ, ແຕ່ລໍຖ້າຫົວໜ້າວິຊາ ແລະ ວິຊາການ.";
-        return "ຜູ້ອຳນວຍການອະນຸມັດແລ້ວ, ລໍຖ້າ ຫົວໜ້າວິຊາ ແລະ ວິຊາການ.";
-    }
+            if (isFullyApproved) {
+                return `<span class="px-2.5 py-1 bg-emerald-100 text-emerald-700 text-xs font-bold rounded-full">✅ ${statusText}</span>`;
+            }
 
-    // 4. ກໍລະນີ ຫົວໜ້າວິຊາ ອະນຸມັດກ່ອນ (ແຕ່ ວິຊາການ ແລະ ຜູ້ອຳນວຍການ ຍັງ)
-    if (headApproved && !academicApproved && !directorApproved) {
-        if (viewerRole === 'teacher') return "ຫົວໜ້າວິຊາອະນຸມັດແລ້ວ, ລໍຖ້າການອະນຸມັດຈາກ ວິຊາການ ແລະ ຜູ້ອຳນວຍການ.";
-        if (viewerRole === 'head') return "ອະນຸມັດແລ້ວ (ລໍຖ້າ ວິຊາການ ແລະ ຜູ້ອຳນວຍການ).";
-        if (viewerRole === 'academic') return "ຫົວໜ້າວິຊາອະນຸມັດແລ້ວ, ລໍຖ້າທ່ານອະນຸມັດ ແລະ ຜູ້ອຳນວຍການ.";
-        if (viewerRole === 'director') return "ຫົວໜ້າວິຊາອະນຸມັດແລ້ວ, ລໍຖ້າ ວິຊາການ ແລະ ທ່ານ.";
-    }
+            return `<span class="px-2.5 py-1 bg-amber-100 text-amber-800 text-xs font-bold rounded-full">⏳ ${statusText}</span>`;
+        }
 
-    // 5. ກໍລະນີ ວິຊາການ ອະນຸມັດກ່ອນ (ແຕ່ ຫົວໜ້າວິຊາ ແລະ ຜູ້ອຳນວຍການ ຍັງ)
-    if (academicApproved && !headApproved && !directorApproved) {
-        if (viewerRole === 'teacher') return "ວິຊາການອະນຸມັດແລ້ວ, ລໍຖ້າການອະນຸມັດຈາກ ຫົວໜ້າວິຊາ ແລະ ຜູ້ອຳນວຍການ.";
-        if (viewerRole === 'academic') return "ອະນຸມັດແລ້ວ (ລໍຖ້າ ຫົວໜ້າວິຊາ ແລະ ຜູ້ອຳນວຍການ).";
-        if (viewerRole === 'head') return "ວິຊາການອະນຸມັດແລ້ວ, ລໍຖ້າທ່ານອະນຸມັດ ແລະ ຜູ້ອຳນວຍການ.";
-        if (viewerRole === 'director') return "ວິຊາການອະນຸມັດແລ້ວ, ລໍຖ້າ ຫົວໜ້າວິຊາ ແລະ ທ່ານ.";
-    }
-
-    // 6. ກໍລະນີ 2 ຝ່າຍອະນຸມັດກ່ອນ (ຫົວໜ້າວິຊາ ແລະ ວິຊາການ ອະນຸມັດແລ້ວ, ແຕ່ ຜູ້ອຳນວຍການ ຍັງ)
-    if (headApproved && academicApproved && !directorApproved) {
-        if (viewerRole === 'teacher') return "ຫົວໜ້າວິຊາ ແລະ ວິຊາການ ອະນຸມັດແລ້ວ, ລໍຖ້າຜູ້ອຳນວຍການ.";
-        return "ຫົວໜ້າວິຊາ ແລະ ວິຊາການ ອະນຸມັດແລ້ວ, ລໍຖ້າຜູ້ອຳນວຍການ.";
-    }
-
-    // ກໍລະນີອື່ນໆ ປະສົມກັນ
-    return "ກຳລັງดำเนินการກວດສອບ";
-}
-
-// ກົດລະບຽບກວດສອບສິດການກົດປຸ່ມອະນຸມັດ
-function checkButtonPermission(userRole) {
-    if (userRole === 'teacher') {
-        // "ຄູປະຈຳວິຊາ" ມີໜ້າທີ່ສົ່ງ ແລະ ແກ້ໄຂ ບໍ່ມີສິດກົດອະນຸມັດ
-        return false; 
-    }
-    // ຫົວໜ້າວິຊາ, ວິຊາການ, ຜູ້ອຳນວຍການ ມີສິດກົດອະນຸມັດ
-    return true;
-}
-</script>
         function openReviewModal(lessonId) {
             const lesson = lessons.find(l => l.id === lessonId);
             if (!lesson) return;
@@ -967,7 +982,6 @@ function checkButtonPermission(userRole) {
 
             const historyContainer = document.getElementById('modalApprovalHistory');
 
-            // ສະແດງປະຫວັດການອະນຸມັດ ແລະ ການເບິ່ງເຫັນສະຖານະຂ້າມກັນຕາມໝາຍເຫດ
             let headText = lesson.approvals.head ? '✅ ອະນຸມັດແລ້ວ' : '⏳ ລໍຖ້າການອະນຸມັດ';
             let academicText = lesson.approvals.academic ? '✅ ອະນຸມັດແລ້ວ' : '⏳ ລໍຖ້າການອະນຸມັດ';
             let directorText = lesson.approvals.director ? '✅ ອະນຸມັດແລ້ວ' : '⏳ ລໍຖ້າການອະນຸມັດ';
@@ -987,14 +1001,14 @@ function checkButtonPermission(userRole) {
                 </div>
             `;
 
-            // ໝາຍເຫດສຳຄັນ: ຖ້າເປັນ "ຄູປະຈຳວິຊາ" (Teacher) ແມ່ນ "ບໍ່ສາມາດອະນຸມັດ" ຫຼື "ສັ່ງໃຫ້ແກ້ໄຂໄດ້"
-            const isTeacherRole = (currentUser.role === 'Teacher');
+            // ກວດສອບສິດການສະແດງປຸ່ມອະນຸມັດໂດຍໃຊ້ checkButtonPermission
+            const canApprove = checkButtonPermission(currentUser ? currentUser.role : '');
             const adminActions = document.getElementById('modalAdminActions');
             const teacherActions = document.getElementById('modalTeacherActions');
             const commentSection = document.getElementById('modalCommentSection');
             const commentInput = document.getElementById('modalComment');
 
-            if (isTeacherRole) {
+            if (!canApprove) {
                 commentSection.classList.add('hidden');
                 adminActions.classList.add('hidden');
                 teacherActions.classList.remove('hidden');
@@ -1017,8 +1031,8 @@ function checkButtonPermission(userRole) {
         }
 
         function submitReview(actionType) {
-            // ກວດສອບສິດເພີ່ມເຕີມ: ຖ້າເປັນ Teacher ບໍ່ໃຫ້ອະນຸມັດ ຫຼື ສັ່ງແກ້ໄຂ
-            if (currentUser.role === 'Teacher') {
+            // ກວດສອບສິດໂດຍໃຊ້ checkButtonPermission
+            if (!checkButtonPermission(currentUser ? currentUser.role : '')) {
                 alert('❌ ຄູປະຈຳວິຊາ (Teacher) ບໍ່ມີສິດກົດອະນຸມັດ ຫຼື ສັ່ງໃຫ້ແກ້ໄຂໄດ້!');
                 return;
             }
