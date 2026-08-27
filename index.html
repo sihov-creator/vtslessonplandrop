@@ -544,8 +544,8 @@
             { id: '36', name: 'ອາຈານ ຄຳມ່ວນ ສຸລິນທອນ', role: 'Teacher', managedSubjects: ['ແຕ້ມຮູບ'], pin: '1234' }
         ];
 
-        let storedUsers = JSON.parse(localStorage.getItem('USERS_DATA'));
-let users = (storedUsers && storedUsers.length > 0) ? storedUsers : defaultUsers;
+        let users = JSON.parse(localStorage.getItem('USERS_DATA')) || defaultUsers;
+
         let driveConfig = {
             scriptUrl: localStorage.getItem('APPS_SCRIPT_URL') || '',
             folderId: localStorage.getItem('DRIVE_FOLDER_ID') || ''
@@ -586,17 +586,12 @@ let users = (storedUsers && storedUsers.length > 0) ? storedUsers : defaultUsers
         let chartStatusInstance = null;
         let chartSubjectInstance = null;
 
-      window.onload = function() {
-    // ຖ້າ localstorage ບໍ່ມີຂໍ້ມູນ ຫຼື ເປັນ array ຫວ່າງ ໃຫ້ບັນທຶກ defaultUsers ລົງໄປ
-    if (!localStorage.getItem('USERS_DATA') || JSON.parse(localStorage.getItem('USERS_DATA')).length === 0) {
-        saveUsersToStorage();
-    }
-
-    populateUserDropdown();
-    populateSubjectSelects();
-    document.getElementById('cfgScriptUrl').value = driveConfig.scriptUrl;
-    document.getElementById('cfgFolderId').value = driveConfig.folderId;
-};
+        window.onload = function() {
+            populateUserDropdown();
+            populateSubjectSelects();
+            document.getElementById('cfgScriptUrl').value = driveConfig.scriptUrl;
+            document.getElementById('cfgFolderId').value = driveConfig.folderId;
+        };
 
         function saveSubjectsToStorage() {
             localStorage.setItem('SUBJECTS_DATA', JSON.stringify(subjects));
