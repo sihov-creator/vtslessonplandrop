@@ -602,6 +602,27 @@ function fetchLessonsFromSheet() {
         })
         .catch(err => console.error("❌ ເກີດຂໍ້ຜິດພາດໃນການດຶງຂໍ້ມູນຈາກ Google Sheets:", err));
 }
+        // ຟັງຊັນສົ່ງຂໍ້ມູນການອະນຸມັດ ແລະ ຄອມເມັ້ນ ໄປອັບເດດໃນ Google Sheet
+function updateLessonToSheet(lesson) {
+    if (!driveConfig.scriptUrl) return;
+
+    fetch(driveConfig.scriptUrl, {
+        method: "POST",
+        headers: {
+            "Content-Type": "text/plain;charset=utf-8"
+        },
+        body: JSON.stringify({
+            action: 'updateLesson',
+            lesson: lesson
+        })
+    })
+    .then(res => res.json())
+    .then(res => {
+        console.log("ອັບເດດສະຖານະໄປ Sheet ສຳເລັດ:", res);
+        fetchLessonsFromSheet(); // ດຶງຂໍ້ມູນໃໝ່ມາສະແດງ
+    })
+    .catch(err => console.error("❌ ເກີດຂໍ້ຜິດພາດໃນການອັບເດດ Sheet:", err));
+}
      window.onload = function() {
     // 1. ເອີ້ນໃຊ້ຟັງຊັນດຶງຂໍ້ມູນຈາກ Sheet ທັນທີ
     fetchLessonsFromSheet();
@@ -1053,43 +1074,46 @@ function fetchLessonsFromSheet() {
         function closeReviewModal() {
             document.getElementById('reviewModal').classList.add('hidden');
         }
+function submitReview(actionType) {
+    // ກວດສອບສິດການໃຊ້ງານ checkButtonPermission
+    if (!checkButtonPermission(currentUser ? currentUser.role : '')) {
+        alert('❌ ຄູປະຈຳວິຊາ (Teacher) ບໍ່ມີສິດກົດອະນຸມັດ ຫຼື ສັ່ງໃຫ້ແກ້ໄຂໄດ້!');
+        return;
+    }
 
-        function submitReview(actionType) {
-            // ກວດສອບສິດໂດຍໃຊ້ checkButtonPermission
-            if (!checkButtonPermission(currentUser ? currentUser.role : '')) {
-                alert('❌ ຄູປະຈຳວິຊາ (Teacher) ບໍ່ມີສິດກົດອະນຸມັດ ຫຼື ສັ່ງໃຫ້ແກ້ໄຂໄດ້!');
-                return;
-            }
+    const lesson = lessons.find(l => l.id === activeModalLessonId);
+    if (!lesson) return;
 
-            const lesson = lessons.find(l => l.id === activeModalLessonId);
-            if (!lesson) return;
+    const commentText = document.getElementById('modalComment').value.trim();
 
-            const commentText = document.getElementById('modalComment').value.trim();
-
-            if (actionType === 'Needs Revision') {
-                lesson.isNeedsRevision = true;
-                if (currentUser.role === 'Head') lesson.comments.head = commentText || 'ໃຫ້ແກ້ໄຂ';
-                if (currentUser.role === 'Academic') lesson.comments.academic = commentText || 'ໃຫ້ແກ້ໄຂ';
-                if (currentUser.role === 'Director') lesson.comments.director = commentText || 'ໃຫ້ແກ້ໄຂ';
-            } else if (actionType === 'Approved') {
-                lesson.isNeedsRevision = false;
-                if (currentUser.role === 'Head') {
-                    lesson.approvals.head = true;
-                    lesson.comments.head = commentText || 'ອະນຸມັດແລ້ວ';
-                } else if (currentUser.role === 'Academic') {
-                    lesson.approvals.academic = true;
-                    lesson.comments.academic = commentText || 'ອະນຸມັດແລ້ວ';
-                } else if (currentUser.role === 'Director') {
-                    lesson.approvals.director = true;
-                    lesson.comments.director = commentText || 'ອະນຸມັດແລ້ວ';
-                }
-            }
-
-            saveLessonsToStorage();
-            closeReviewModal();
-            renderLessons();
-            renderDashboard();
+    if (actionType === 'Needs Revision') {
+        lesson.isNeedsRevision = true;
+        if (currentUser.role === 'Head') lesson.comments.head = commentText || 'ໃຫ້ແກ້ໄຂ';
+        if (currentUser.role === 'Academic') lesson.comments.academic = commentText || 'ໃຫ້ແກ້ໄຂ';
+        if (currentUser.role === 'Director') lesson.comments.director = commentText || 'ໃຫ້ແກ້ໄຂ';
+    } else if (actionType === 'Approved') {
+        lesson.isNeedsRevision = false;
+        if (currentUser.role === 'Head') {
+            lesson.approvals.head = true;
+            lesson.comments.head = commentText || 'ອະນຸມັດແລ້ວ';
+        } else if (currentUser.role === 'Academic') {
+            lesson.approvals.academic = true;
+            lesson.comments.academic = commentText || 'ອະນຸມັດແລ້ວ';
+        } else if (currentUser.role === 'Director') {
+            lesson.approvals.director = true;
+            lesson.comments.director = commentText || 'ອະນຸມັດແລ້ວ';
         }
+    }
+
+    saveLessonsToStorage();
+
+    // 🟢 ສົ່ງຂໍ້ມູນການອະນຸມັດ ແລະ ຄອມເມັ້ນໄປອັບເດດໃນ Google Sheets
+    updateLessonToSheet(lesson);
+
+    closeReviewModal();
+    renderLessons();
+    renderDashboard();
+}
 
         function resubmitRevisedLesson() {
             const lesson = lessons.find(l => l.id === activeModalLessonId);
