@@ -38,16 +38,21 @@
                 </button>
             </form>
             <p class="text-xs text-slate-400 mt-6">* ລະຫັດ PIN ເລີ່ມຕົ້ນ: <span class="font-mono bg-slate-100 px-1.5 py-0.5 rounded text-slate-600">******</span></p>
-        </div>
+
+            <!-- 🟢 ປຸ່ມລີເຊັດ PIN ເປັນຄ່າໃໝ່ -->
+            <div class="text-center mt-3 pt-3 border-t border-slate-100">
+                <button type="button" 
+                        onclick="if(confirm('ທ່ານຕ້ອງການລີເຊັດຂໍ້ມູນ PIN ເພື່ອອັບເດດຄ່າໃໝ່ແມ່ນບໍ່?')){ localStorage.removeItem('USERS_DATA'); location.reload(); }" 
+                        class="text-xs text-red-500 hover:text-red-700 font-medium inline-flex items-center gap-1 transition">
+                    🔄 ອັບເດດລະບົບ / ລີເຊັດ PIN ເປັນຄ່າໃໝ່
+                </button>
+            </div>
+
+        </div> <!-- ປິດກ່ອງສີຂາວ Login -->
+    </div> <!-- ປິດ modal wrapper -->
+    </div> <!-- ປິດ modal wrapper -->
     </div>
-<!-- ປຸ່ມລີເຊັດ PIN ເກົ່າອອກຈາກ Browser -->
-<div class="text-center mt-3 pt-3 border-t border-slate-100">
-    <button type="button" 
-            onclick="if(confirm('ທ່ານຕ້ອງການລີເຊັດຂໍ້ມູນ PIN ເພື່ອອັບເດດຄ່າໃໝ່ແມ່ນບໍ່?')){ localStorage.removeItem('USERS_DATA'); location.reload(); }" 
-            class="text-xs text-red-500 hover:text-red-700 font-medium inline-flex items-center gap-1 transition">
-        🔄 ອັບເດດລະບົບ / ລີເຊັດ PIN ເປັນຄ່າໃໝ່
-    </button>
-</div>
+
     <!-- MAIN APP WRAPPER -->
     <div id="mainApp" class="hidden flex min-h-screen">
 
