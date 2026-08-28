@@ -546,11 +546,10 @@
 
         let users = JSON.parse(localStorage.getItem('USERS_DATA')) || defaultUsers;
 
-        let driveConfig = {
-    scriptUrl: 'https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec', // https://script.google.com/macros/s/AKfycbyl3o1PmIK0IH8Pg4sIP_mwyPpecqdixXKH9yinRUoB6vvAsv-9XkiXWbGxIbr1dS7C/exec
-    folderId: 'YOUR_FOLDER_ID' // 1HFRlY_x8RB6iZFgT-ffPmfMVzQ44s-lH
+     let driveConfig = {
+    scriptUrl: 'https://script.google.com/macros/s/AKfycbxpowy2QfT54TZsBuhwCkBuEsb3SrXJBKHVpHbHu8Z0mJAdyD_qxLyLTHceWl5WoKQp/exec',
+    folderId: '1HFRlY_x8RB6iZFgT-ffPmfMVzQ44s-lH'
 };
-
         let currentUploadMode = 'link';
         let selectedFile = null;
 
@@ -585,13 +584,38 @@
         let activeModalLessonId = null;
         let chartStatusInstance = null;
         let chartSubjectInstance = null;
+// ຟັງຊັນດຶງຂໍ້ມູນບົດສອນ real-time ຈາກ Google Sheets
+function fetchLessonsFromSheet() {
+    // ຖ້າບໍ່ມີ URL ຂອງ Google Apps Script ໃຫ້ຂ້າມໄປ
+    if (!driveConfig.scriptUrl) return;
 
-        window.onload = function() {
-            populateUserDropdown();
-            populateSubjectSelects();
-            document.getElementById('cfgScriptUrl').value = driveConfig.scriptUrl;
-            document.getElementById('cfgFolderId').value = driveConfig.folderId;
-        };
+    fetch(driveConfig.scriptUrl)
+        .then(res => res.json())
+        .then(data => {
+            // ກວດສອບວ່າຂໍ້ມູນທີ່ໄດ້ມາເປັນ Array ຖ້າຖືກຕ້ອງໃຫ້ອັບເດດລະບົບ
+            if (Array.isArray(data)) {
+                lessons = data;
+                saveLessonsToStorage(); // ບັນທຶກ ສຳຮອງໄວ້ໃນ Browser
+                renderLessons();        // ໂຫຼດຕາຕະລາງບົດສອນໃໝ່
+                renderDashboard();      // ໂຫຼດສະຖິຕິ ແລະ ກຣາຟໃໝ່
+            }
+        })
+        .catch(err => console.error("❌ ເກີດຂໍ້ຜິດພາດໃນການດຶງຂໍ້ມູນຈາກ Google Sheets:", err));
+}
+     window.onload = function() {
+    // 1. ເອີ້ນໃຊ້ຟັງຊັນດຶງຂໍ້ມູນຈາກ Sheet ທັນທີ
+    fetchLessonsFromSheet();
+
+    // 2. ໂຄດກວດສອບຜູ້ໃຊ້ເກົ່າ
+    if (!localStorage.getItem('USERS_DATA') || JSON.parse(localStorage.getItem('USERS_DATA')).length === 0) {
+        saveUsersToStorage();
+    }
+
+    populateUserDropdown();
+    populateSubjectSelects();
+    document.getElementById('cfgScriptUrl').value = driveConfig.scriptUrl;
+    document.getElementById('cfgFolderId').value = driveConfig.folderId;
+};
 
         function saveSubjectsToStorage() {
             localStorage.setItem('SUBJECTS_DATA', JSON.stringify(subjects));
