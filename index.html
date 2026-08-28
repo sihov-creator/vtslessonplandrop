@@ -37,10 +37,17 @@
                     ເຂົ້າສູ່ລະບົບ
                 </button>
             </form>
-            <p class="text-xs text-slate-400 mt-6">* ລະຫັດ PIN ເລີ່ມຕົ້ນ: <span class="font-mono bg-slate-100 px-1.5 py-0.5 rounded text-slate-600">1234</span></p>
+            <p class="text-xs text-slate-400 mt-6">* ລະຫັດ PIN ເລີ່ມຕົ້ນ: <span class="font-mono bg-slate-100 px-1.5 py-0.5 rounded text-slate-600">******</span></p>
         </div>
     </div>
-
+<!-- ປຸ່ມລີເຊັດຂໍ້ມູນ ແລະ ອັບເດດ PIN ໃໝ່ -->
+<div class="text-center mt-3 pt-3 border-t border-slate-100">
+    <button type="button" 
+            onclick="if(confirm('ທ່ານຕ້ອງການລີເຊັດຂໍ້ມູນ PIN ເພື່ອອັບເດດລະບົບໃໝ່ແມ່ນບໍ່?')){ localStorage.clear(); location.reload(); }" 
+            class="text-xs text-red-500 hover:text-red-700 font-medium inline-flex items-center gap-1 transition">
+        🔄 ອັບເດດລະບົບ / ລີເຊັດ PIN ເປັນຄ່າໃໝ່
+    </button>
+</div>
     <!-- MAIN APP WRAPPER -->
     <div id="mainApp" class="hidden flex min-h-screen">
 
