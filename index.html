@@ -547,9 +547,9 @@
         let users = JSON.parse(localStorage.getItem('USERS_DATA')) || defaultUsers;
 
         let driveConfig = {
-            scriptUrl: localStorage.getItem('APPS_SCRIPT_URL') || '',
-            folderId: localStorage.getItem('DRIVE_FOLDER_ID') || ''
-        };
+    scriptUrl: 'https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec', // https://script.google.com/macros/s/AKfycbyl3o1PmIK0IH8Pg4sIP_mwyPpecqdixXKH9yinRUoB6vvAsv-9XkiXWbGxIbr1dS7C/exec
+    folderId: 'YOUR_FOLDER_ID' // 1HFRlY_x8RB6iZFgT-ffPmfMVzQ44s-lH
+};
 
         let currentUploadMode = 'link';
         let selectedFile = null;
