@@ -881,29 +881,29 @@ function updateLessonToSheet(lesson) {
             renderDashboard();
         }
 
-        function deleteLesson(id) {
+       function deleteLesson(id) {
     if (!confirm('ທ່ານຕ້ອງການລົບບົດສອນນີ້ອອກຈາກລະບົບ ແລະ Google Sheet ແທ້ບໍ?')) return;
 
-    // 1. ລົບອອກຈາກ ໜ້າຈໍຊົ່ວຄາວ
+    // 1. ລົບອອກຈາກໜ້າຈໍຊົ່ວຄາວທັນທີ
     lessons = lessons.filter(l => l.id !== id);
     saveLessonsToStorage();
     renderLessons();
     renderDashboard();
 
-    // 2. ສົ່ງຄຳສັ່ງໄປລົບຢູ່ Google Sheets ໂດຍຕົງ
+    // 2. ສົ່ງຄຳສັ່ງໄປລົບຢູ່ Google Sheets ແບບ URLSearchParams
     if (driveConfig && driveConfig.scriptUrl) {
+        var formData = new URLSearchParams();
+        formData.append('action', 'deleteLesson');
+        formData.append('lessonId', id);
+
         fetch(driveConfig.scriptUrl, {
             method: 'POST',
             mode: 'no-cors',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                action: 'deleteLesson',
-                lessonId: id
-            })
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: formData.toString()
         })
         .then(() => {
             console.log('✅ ສົ່ງຄຳສັ່ງລົບໄປ Google Sheet ຮຽບຮ້ອຍ');
-            setTimeout(fetchLessonsFromSheet, 1500);
         })
         .catch(err => console.error('❌ ເກີດຂໍ້ຜິດພາດໃນການລົບ:', err));
     }
